@@ -16,8 +16,8 @@ pre-commit hook and refuses any file matching a known firmware digest, carrying
 an `ELUP`/`ELEK`/SysEx magic, wearing a firmware extension, or simply being
 unexplained binary — so a renamed copy does not slip past `.gitignore`.
 
-**Licence: not chosen yet.** Until it is, no rights are granted (see `LICENSE`).
-Ask if you want to reuse something.
+**MIT licensed.** These findings came from reading other people's work; nothing
+here is fenced off. Take what is useful.
 
 ---
 
@@ -52,14 +52,17 @@ here when they have run on hardware. What is published is what is checkable.
 ```sh
 python3 tools/extract_os.py ~/OCTATRACK_OS1.40C.syx out/mainos.bin
 python3 tools/cave_scan.py out/mainos.bin --min 512
-python3 tools/otdis.py 0x40090a14 +0x180
+m68k-elf-objdump -D -b binary -m m68k:5407 --adjust-vma=0x40000400 out/mainos.bin | less
 ```
 
 `extract_os.py` needs nothing but Python — no toolchain, no
 `elektron-firmware-tool` — and verifies the result against the published digest
-of OS 1.40C. `otdis.py` uses `m68k-elf-objdump -m m68k:5407` when it is
-installed and says so; without it, it falls back to capstone, which is fine for
-FS/UI code and wrong on the ColdFire-only opcodes that fill the audio path.
+of OS 1.40C. That is the point of it: every address below is checkable with
+nothing but this repository and your own copy of the official OS.
+
+For disassembly use `m68k-elf-objdump -m m68k:5407`. Capstone's m68k decoder
+also works for the FS and UI code quoted here, but it is **wrong** on the
+ColdFire-only opcodes (`mvz`/`mvs`, EMAC) that fill the audio path.
 
 ## Tools
 
@@ -67,8 +70,6 @@ FS/UI code and wrong on the ColdFire-only opcodes that fill the audio path.
 |---|---|
 | `tools/extract_os.py` | your `.syx` → the MAIN OS (SysEx 7-bit → ELEK → aPLib), digest-checked |
 | `tools/cave_scan.py` | free runs in the image, and `--refs LO HI` to prove a range is unreferenced |
-| `tools/otdis.py` | disassembly by virtual address, `m68k-elf-objdump` or capstone |
-| `tools/check_no_firmware.py` | refuses to commit anything that could be Elektron's firmware; `--install` makes it a pre-commit hook |
 
 ## Docs
 

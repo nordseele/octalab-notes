@@ -146,8 +146,11 @@ Notes for the build:
 
 ```sh
 python3 tools/extract_os.py <your OCTATRACK_OS1.40C.syx> out/mainos.bin
-python3 tools/otdis.py 0x40090a14 +0x180        # the walker
-python3 tools/otdis.py 0x40014636 +0x120        # the live vtable initialiser
+# VA 0x40000400 == file offset 0, so the addresses above read directly:
+m68k-elf-objdump -D -b binary -m m68k:5407 --adjust-vma=0x40000400 out/mainos.bin \
+    | sed -n '/^40090a14/,/^40090b94/p'        # the walker
+m68k-elf-objdump -D -b binary -m m68k:5407 --adjust-vma=0x40000400 out/mainos.bin \
+    | sed -n '/^40014636/,/^40014756/p'        # the live vtable initialiser
 ```
 
 `tools/extract_os.py` is a Python port of the ems-octakit decoder (SysEx 7-bit unpack →
@@ -156,6 +159,5 @@ addresses above are checkable from a clean clone plus your own `.syx`.
 
 The listings behind this document were produced with capstone, which decodes
 ColdFire-only opcodes (`mvz`/`mvs`, EMAC) wrongly — harmless for the FS and UI code
-here, **not** for anything in the audio hot path. `tools/otdis.py` prefers
-`m68k-elf-objdump -m m68k:5407` whenever it is installed, and says which backend it
-used.
+here, **not** for anything in the audio hot path. Use `m68k-elf-objdump -m m68k:5407`
+for anything you intend to trust twice.
