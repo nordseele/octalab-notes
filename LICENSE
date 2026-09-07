@@ -1,0 +1,12 @@
+No licence has been chosen for this repository yet.
+
+Until one is, no rights are granted: the default of copyright applies, and the
+contents are readable here but not licensed for reuse or redistribution.
+
+If you want to use something from this repository before that changes, ask —
+the intent is to share, the licence simply has not been picked.
+
+Note that this is about octalab's own contents. The upstream repositories in
+refs/ are other people's work under their own licences: check each one before
+copying anything out of it. And no Elektron firmware is here, under any licence
+— see tools/check_no_firmware.py, which refuses to let one be committed.
