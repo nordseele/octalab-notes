@@ -5,13 +5,13 @@ repository publishes *findings only*: what was read out of the firmware and
 verified, in a form another project can check. It is not a tutorial, it carries
 no build or flashing procedure, and it ships no code.
 
-**What it is for.** octalab adds *creative* functions to the stock firmware:
+**The goal of octalab** is to add *creative* functions to the stock firmware:
 randomness and constrained chance, and the instant capture of a musical idea
 before it evaporates — the machine handing you a starting point you would not
-have chosen, in the spirit of Oblique Strategies. **No new effects, no new
-synthesis**: three other projects already do that well. Which is why the
-findings below are about the menu, the filesystem and the sample pool, and not
-about the audio path.
+have chosen, in the spirit of Oblique Strategies. **No new effects and no new
+synthesis**: three other projects already cover that ground. That is why the
+findings below are about the menu, the filesystem and the sample pool rather
+than the audio path.
 
 An independent workshop, not a fork. It stands beside
 [octamax](https://github.com/mxldyn/octamax),
