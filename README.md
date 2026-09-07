@@ -24,9 +24,7 @@ reference, and publishes here only what those four still mark open.
 sha256 `164f3122…`, 1,112,560 bytes, load base `0x40000400` — VA = file offset
 + base. An address without that identity means nothing.
 
-**No Elektron binary is redistributed here**, in any form. You supply your own
-copy of the official OS.
-
+**No Elektron binary is redistributed here**, in any form.
 ---
 
 ## The filesystem layer ✅
