@@ -1,101 +1,95 @@
-# octalab
+# octalab — findings
 
-**Helpers and creative-inspiration functions for the Elektron Octatrack, and
-the tools to find room for them.** The reference points are Oblique
-Strategies and randomness: the machine handing you a starting point you would
-not have chosen. An independent workshop, not a fork: it stands beside
-[octamax](https://github.com/mxldyn/octamax), [octabam](https://github.com/sambanks/octabam),
+Reverse-engineering notes on the **Elektron Octatrack MKI, OS 1.40C**. This
+repository publishes *findings only*: what was read out of the firmware and
+verified, in a form another project can check. It is not a tutorial, it carries
+no build or flashing procedure, and it ships no code.
+
+An independent workshop, not a fork. It stands beside
+[octamax](https://github.com/mxldyn/octamax),
+[octabam](https://github.com/sambanks/octabam),
 [ems-octakit](https://github.com/emuyia/ems-octakit) and
 [octa-bt-pt](https://github.com/bryantysinger/octa-bt-pt), reads all four as
-reference, and contributes its own findings back.
+reference, and publishes here only what those four still mark open.
 
-Everything here is for **educational use**. **No Elektron binary is
-redistributed** — you bring your own copy of the official OS and the tools read
-it. That is enforced, not just promised: `tools/check_no_firmware.py` runs as a
-pre-commit hook and refuses any file matching a known firmware digest, carrying
-an `ELUP`/`ELEK`/SysEx magic, wearing a firmware extension, or simply being
-unexplained binary — so a renamed copy does not slip past `.gitignore`.
+**The image.** Every address below is in OS 1.40C, MAIN OS
+sha256 `164f3122…`, 1,112,560 bytes, load base `0x40000400` — VA = file offset
++ base. An address without that identity means nothing.
+
+**No Elektron binary is redistributed here**, in any form. You supply your own
+copy of the official OS.
+
+---
+
+## The filesystem layer ✅
+
+The gap every Octatrack RE project lists as open. The 23-slot FS vtable at
+`0x46c823fa`, its three implementations and which one the unit actually runs;
+and `0x40090a14`, a **recursive tree walker with a per-entry callback** that the
+stock sample-load path already calls.
+
+Trap: the walker enumerates a whole directory *before* invoking the callback, so
+the entry register holds the **last** entry, not the current one.
+
+→ [`docs/FS_LAYER.md`](docs/FS_LAYER.md)
+
+## The tail of the image is not free space ⚠️
+
+Two runs at the tail, 15,153 B and 12,288 B, hold zeros in the image and have
+**zero** static references pointing into them. Both are written at runtime.
+Code placed in the first produced a `VEC:03` address error in the menu draw
+loop on hardware.
+
+The finding is the inference rule, not the addresses: *no static references*
+means nothing is **known** to point at a region, not that nothing writes to it.
+Only a canary run — fill, exercise the unit, read back — settles it. The shared
+6 KB cave at `0x400d64da` is the one proven region, and octabam's list cave sits
+**inside** the range octamax is filling, so those two images already cannot be
+combined.
+
+→ [`docs/CAVES.md`](docs/CAVES.md)
+
+## The MAIN MENU tables — adding a category with no new instruction ✅
+
+A fifth top-level category beside PROJECT / SYSTEM / CONTROL / MIDI, built
+entirely from data: rows, a list descriptor and an icon. Runs on a MKI; the
+stock tree opens, draws, scrolls and closes it.
+
+Three rules, each closing something still marked open upstream, each paid for
+by a build that failed on the unit:
+
+- A row whose **action is null is a section heading** the cursor skips.
+- `[ENTER]` dispatches on the **page id at `+0x14`**, and only falls through to
+  the action at `+0x08` when that id is 0 — so a row inside a pane cannot
+  descend, whatever its child pointer says.
+- A list descriptor is **inert until initialised at boot**; one built by hand
+  needs `+0x10`, the visible-row count, or its pane draws empty.
+
+The window descriptor at `+0x04` turns out to be the category's **icon**
+(octabam's MAINMENU.md marks `+0x08..+0x14` uninterpreted and its section 8
+lists this one undecoded).
+
+→ [`docs/MENU.md`](docs/MENU.md)
+
+## What a sample slot actually is ✅
+
+Three things must be right at once and each is silent when wrong: `PATH=` is
+stored **bare**, with no quotes; the length in bars is **computed from the
+file** and must never be copied from another slot; and half the state lives in
+`markers.work`, a file named in other projects but whose layout is documented
+nowhere. Verified end to end — 32 slots written from the host, then loaded,
+previewed and trigged on the unit.
+
+Parsing trap: `^KEY=.*$` eats the `\r` of these CRLF files. Anchor on
+`[^\r\n]*`.
+
+→ [`docs/PROJECT_FILE.md`](docs/PROJECT_FILE.md)
+
+---
 
 **MIT licensed.** These findings came from reading other people's work; nothing
-here is fenced off. Take what is useful.
+here is fenced off.
 
----
-
-## What is here now
-
-**The FAT layer, and a recursive directory walker.** Every Octatrack RE project
-lists the filesystem layer as the open gap. It is closed:
-the 23-slot FS vtable at `0x46c823fa`, its three implementations and which one
-the unit actually runs — and `0x40090a14`, a **recursive tree walker with a
-per-entry callback** that the sample-load path already calls. Anything that has
-to look at what is on the card starts there. → **[`docs/FS_LAYER.md`](docs/FS_LAYER.md)**
-
-**27 KB of free, unreferenced space in the image.** Everyone is working inside
-the same 6 KB cave at `0x400d64da` — octamax has nearly filled it and octabam
-plants a cave at `0x400d6b00`, inside it. There are two much larger runs at the
-tail of the image with **zero** static references to them.
-→ **[`docs/CAVES.md`](docs/CAVES.md)**
-
-**What a sample slot really is.** Writing one from scratch means getting three
-things right at once, each silent when wrong: `PATH=` is bare, the length in
-bars is computed from the file and must never be copied from another slot, and
-half the state lives in `markers.work` — a file named in other projects but
-whose layout is documented nowhere. Verified end to end: 32 slots written
-entirely from the host load, preview and trig on the unit.
-→ **[`docs/PROJECT_FILE.md`](docs/PROJECT_FILE.md)**
-
-Features are being built on top of these in a workshop repository, and land
-here when they have run on hardware. What is published is what is checkable.
-
-## Quick start
-
-```sh
-python3 tools/extract_os.py ~/OCTATRACK_OS1.40C.syx out/mainos.bin
-python3 tools/cave_scan.py out/mainos.bin --min 512
-m68k-elf-objdump -D -b binary -m m68k:5407 --adjust-vma=0x40000400 out/mainos.bin | less
-```
-
-`extract_os.py` needs nothing but Python — no toolchain, no
-`elektron-firmware-tool` — and verifies the result against the published digest
-of OS 1.40C. That is the point of it: every address below is checkable with
-nothing but this repository and your own copy of the official OS.
-
-For disassembly use `m68k-elf-objdump -m m68k:5407`. Capstone's m68k decoder
-also works for the FS and UI code quoted here, but it is **wrong** on the
-ColdFire-only opcodes (`mvz`/`mvs`, EMAC) that fill the audio path.
-
-## Tools
-
-| | |
-|---|---|
-| `tools/extract_os.py` | your `.syx` → the MAIN OS (SysEx 7-bit → ELEK → aPLib), digest-checked |
-| `tools/cave_scan.py` | free runs in the image, and `--refs LO HI` to prove a range is unreferenced |
-
-## Docs
-
-| | |
-|---|---|
-| [`docs/FS_LAYER.md`](docs/FS_LAYER.md) | the FS vtable and the directory walker |
-| [`docs/PROJECT_FILE.md`](docs/PROJECT_FILE.md) | what a STATIC sample record contains, verified against the unit's own output |
-| [`docs/CAVES.md`](docs/CAVES.md) | where octalab's code lives, and the canary test a region must pass |
-| [`docs/SHARING.md`](docs/SHARING.md) | how findings go out, and what "verified" has to mean before they do |
-
-## ⚠️ Before you flash anything
-
-Nothing in this repository is endorsed by, supported by, or affiliated with
-Elektron. Writing a non-official OS to real hardware puts the warranty in
-question and can leave the unit unusable. Static analysis — reading,
-disassembling, learning — carries no risk to the hardware and is most of what is
-here.
-
-If you do flash: keep the official `.syx` at hand. `[FUNC]` + power on →
-`[TRIG 3]` (MIDI UPGRADE) recovers the unit even from a corrupt OS, because the
-bootloader is never touched by an OS update. Never cut power during
-`UPDATING FLASH`. Read octamax's [`FLASHING.md`](https://github.com/mxldyn/octamax/blob/main/FLASHING.md)
-first — the recovery net is written up there properly.
-
----
-
-*Independent, unofficial, educational. "Elektron" and "Octatrack" are trademarks
-of Elektron Music Machines MAV AB, used here only to identify the hardware under
-study.*
+*Independent, unofficial, educational. Not endorsed by, supported by, or
+affiliated with Elektron. "Elektron" and "Octatrack" are trademarks of Elektron
+Music Machines MAV AB, used here only to identify the hardware under study.*

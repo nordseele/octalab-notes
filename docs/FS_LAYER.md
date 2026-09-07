@@ -142,22 +142,11 @@ Notes for the build:
 
 ---
 
-## 4. Reproducing this
+## 4. The image these addresses are in
 
-```sh
-python3 tools/extract_os.py <your OCTATRACK_OS1.40C.syx> out/mainos.bin
-# VA 0x40000400 == file offset 0, so the addresses above read directly:
-m68k-elf-objdump -D -b binary -m m68k:5407 --adjust-vma=0x40000400 out/mainos.bin \
-    | sed -n '/^40090a14/,/^40090b94/p'        # the walker
-m68k-elf-objdump -D -b binary -m m68k:5407 --adjust-vma=0x40000400 out/mainos.bin \
-    | sed -n '/^40014636/,/^40014756/p'        # the live vtable initialiser
-```
+OS 1.40C, MAIN OS sha256 `164f3122…`, load base `0x40000400` — VA = file
+offset + base.
 
-`tools/extract_os.py` is a Python port of the ems-octakit decoder (SysEx 7-bit unpack →
-ELEK container → aPLib depack) and reproduces the published sha256 exactly, so the
-addresses above are checkable from a clean clone plus your own `.syx`.
-
-The listings behind this document were produced with capstone, which decodes
-ColdFire-only opcodes (`mvz`/`mvs`, EMAC) wrongly — harmless for the FS and UI code
-here, **not** for anything in the audio hot path. Use `m68k-elf-objdump -m m68k:5407`
-for anything you intend to trust twice.
+Capstone's m68k decoder is wrong on the ColdFire-only opcodes (`mvz`/`mvs`,
+EMAC) — harmless for the FS and UI code here, **not** for anything in the
+audio hot path. The correct architecture is `m68k:5407`.
