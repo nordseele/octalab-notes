@@ -25,6 +25,37 @@ sha256 `164f3122…`, 1,112,560 bytes, load base `0x40000400` — VA = file offs
 + base. An address without that identity means nothing.
 
 **No Elektron binary is redistributed here**, in any form.
+
+---
+
+## What runs on the unit today
+
+All of this has been flashed and used on a **MKI running OS 1.40C**. It is
+described here because it is what the findings below were paid for; this
+repository publishes no code and no build or flashing procedure.
+
+**OCTALAB is a fifth top-level menu category**, beside PROJECT / SYSTEM /
+CONTROL / MIDI, with its own icon — built entirely from data, with no new
+instruction added to the firmware.
+
+**Double-tap `[FUNCTION]`** opens a floating list that owns the panel until
+`[EXIT]`, reusing the firmware's own double-press detection so FUNCTION stays a
+modifier. It re-opens on the row you used last, so a function you repeat is one
+press and `[ENTER]`.
+
+| row | what it does |
+|---|---|
+| `FILL POOL` | fills every free STATIC slot with random audio from anywhere under `<set>/AUDIO/` |
+| `APPEND 8 FILES` | the same, but only the next eight free slots |
+| `SHUFFLE POOL` | re-deals the loaded samples among the slots they occupy |
+| `REROLL TRACK` | replaces what the **current track** plays, if it is a static machine |
+| `CLEAR SLOTS` | empties every slot |
+
+The fill walks the whole tree, filters by extension before offering anything,
+and picks a uniform subset in a single pass — no candidate list, no second walk
+per slot. Occupied slots are left alone except by `REROLL TRACK`, which is
+supposed to replace, and `CLEAR SLOTS`, which says what it does.
+
 ---
 
 ## The filesystem layer ✅
@@ -76,6 +107,30 @@ The window descriptor at `+0x04` turns out to be the category's **icon**
 lists this one undecoded).
 
 → [`docs/MENU.md`](docs/MENU.md)
+
+## Loading a sample into a slot ✅
+
+`ot_static_slot_load` is **half** of it. Its one caller in the image is the
+storage-job dispatcher, which follows it with a post-load and two refreshes; a
+slot loaded without them displays its name and size, shows no BPM, and will
+neither preview nor trig.
+
+And a refused load is not silent: the loader stamps a per-slot status record
+that the audio pool renders as `ERROR: <reason> : <name>`, which clearing the
+name does not undo. `-0x10` is *no extension at all* — what a **directory name**
+returns — as distinct from `-0x1e`, a wrong one.
+
+→ [`docs/SLOT_LOADING.md`](docs/SLOT_LOADING.md)
+
+## The current track, and the slot it plays ✅
+
+The selected track is one byte; the slot it plays takes an arithmetic step
+through the active bank buffer, and the machine-type byte in the middle is what
+says whether the track is playing from the static pool at all. Also: where
+`RANDOMIZE PAGE` lives, what it takes, and the one thing still unknown about
+calling it.
+
+→ [`docs/TRACK.md`](docs/TRACK.md)
 
 ## What a sample slot actually is ✅
 
