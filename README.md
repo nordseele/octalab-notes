@@ -1,150 +1,83 @@
-# octalab — findings
+# octalab
 
-Reverse-engineering notes on the **Elektron Octatrack MKI, OS 1.40C**. This
-repository publishes *findings only*: what was read out of the firmware and
-verified, in a form another project can check. It is not a tutorial, it carries
-no build or flashing procedure, and it ships no code.
+Creative helper functions for the **Elektron Octatrack MKI**, added to the
+stock **OS 1.40C**.
 
-**The goal of octalab** is to add *creative* functions to the stock firmware:
-randomness and constrained chance, and the instant capture of a musical idea
-before it evaporates — the machine handing you a starting point you would not
-have chosen, in the spirit of Oblique Strategies. **No new effects and no new
-synthesis**: three other projects already cover that ground. That is why the
-findings below are about the menu, the filesystem and the sample pool rather
-than the audio path.
+octalab is about randomness, constrained chance and quick gestures: the machine
+handing you a starting point you would not have chosen, in the spirit of
+Oblique Strategies. It adds **no new effects and no new synthesis**; other
+projects already cover that ground.
 
-An independent workshop, not a fork. It stands beside
+This repository publishes no firmware, no build and no flashing procedure. It
+describes what octalab does, and shares what was learned about the firmware on
+the way.
+
+---
+
+## The octalab menu: double-tap [FUNCTION]
+
+Everything octalab adds is in one list. **Tap [FUNCTION] twice, quickly**, from
+almost any screen, and the list opens over whatever you were doing. Pick a row
+with the arrows, press **[ENTER]**; **[EXIT]** closes the list.
+
+- **[FUNCTION] still works as before.** A single press, or [FUNCTION] held with
+  another key, does what it always did. The menu opens only on two presses in a
+  row with no other key in between.
+- **The list remembers the last row you used.** A function you repeat is
+  double-tap, then [ENTER].
+
+Some functions have options. They are in **OCTALAB**, a fifth category of the
+MAIN MENU (`[FUNCTION] + [MIXER]`), beside PROJECT, SYSTEM, CONTROL and MIDI:
+a page of checkboxes. The options go back to their defaults at every power-on.
+
+## Functions
+
+✅ used on the unit and working · ⚠️ does not do what it should yet
+
+| row | what it does | |
+|---|---|---|
+| `FILL POOL` | fills every empty STATIC sample slot with random audio found anywhere in the set's `AUDIO` folder | ✅ |
+| `APPEND 8 FILES` | the same, for the next eight empty slots only | ✅ |
+| `SHUFFLE POOL` | re-deals the loaded samples among the slots they occupy | ✅ |
+| `REROLL TRACK` | replaces the sample the current track plays (static machines only) | ✅ |
+| `RESET TRACK` | puts the current track's parameters back to their defaults (the choice of effects is kept, for now) | ✅ |
+| `RANDOM FX` | chooses random effects for the current track | ✅ |
+| `RANDOM LFO` | randomises the current track's LFOs, including what they modulate | ✅ |
+| `RND SLICE LK` | meant to be the slice editor's *create random locks*; today it opens a `DELETE SLICES ?` prompt instead — **answer NO**. Being reworked | ⚠️ |
+| `CREATE 16 SCENES` | fills all sixteen scenes with random locks; the OCTALAB options choose which pages. A new scene takes effect once you select it | ✅ |
+| `CLEAR SCENES` | empties all sixteen scenes | ✅ |
+| `CLEAR SLOTS` | empties every sample slot — there is no confirmation | ✅ |
+
+Options page: `SC PITCH`, `SC START`, `SC LENGTH`, `SC RATE`, `SC RETRIG`,
+`SC LFO`, `SC LFO DEST`, `SC AMP`, `SC FX` (what `CREATE 16 SCENES` may touch;
+LFO, LFO DEST and FX are on by default) and `FILL OVERWR` (lets the pool fill
+replace samples that are already loaded).
+
+This list grows as functions are added.
+
+## State of the project
+
+- **One machine, one OS:** Octatrack MKI, OS 1.40C. Nothing else is supported.
+- **Working today:** the menu, the options page, the pool functions, the
+  track functions and the scene functions. `RND SLICE LK` is being reworked.
+- **In progress:** randomising the sequencer itself — random sample locks on
+  trigs, and random trigless layers.
+- **Not combinable** with octamax or the standalone 1.40MIDISC in one image:
+  all three use the same small free area of the firmware.
+- **No build is distributed**, now or later: an image contains Elektron's OS.
+
+## For other firmware projects
+
+The reverse-engineering findings behind these functions — addresses, data
+layouts, the traps that cost a failed build, each with its confidence level
+and the image it was read from — are in **[`docs/FINDINGS.md`](docs/FINDINGS.md)**.
+
+octalab is an independent workshop, not a fork. It reads
 [octamax](https://github.com/mxldyn/octamax),
 [octabam](https://github.com/sambanks/octabam),
 [ems-octakit](https://github.com/emuyia/ems-octakit) and
-[octa-bt-pt](https://github.com/bryantysinger/octa-bt-pt), reads all four as
-reference, and publishes here only what those four still mark open.
-
-**The image.** Every address below is in OS 1.40C, MAIN OS
-sha256 `164f3122…`, 1,112,560 bytes, load base `0x40000400` — VA = file offset
-+ base. An address without that identity means nothing.
-
-**No Elektron binary is redistributed here**, in any form.
-
----
-
-## What runs on the unit today
-
-All of this has been flashed and used on a **MKI running OS 1.40C**. It is
-described here because it is what the findings below were paid for; this
-repository publishes no code and no build or flashing procedure.
-
-**OCTALAB is a fifth top-level menu category**, beside PROJECT / SYSTEM /
-CONTROL / MIDI, with its own icon — built entirely from data, with no new
-instruction added to the firmware.
-
-**Double-tap `[FUNCTION]`** opens a floating list that owns the panel until
-`[EXIT]`, reusing the firmware's own double-press detection so FUNCTION stays a
-modifier. It re-opens on the row you used last, so a function you repeat is one
-press and `[ENTER]`.
-
-| row | what it does |
-|---|---|
-| `FILL POOL` | fills every free STATIC slot with random audio from anywhere under `<set>/AUDIO/` |
-| `APPEND 8 FILES` | the same, but only the next eight free slots |
-| `SHUFFLE POOL` | re-deals the loaded samples among the slots they occupy |
-| `REROLL TRACK` | replaces what the **current track** plays, if it is a static machine |
-| `CLEAR SLOTS` | empties every slot |
-
-The fill walks the whole tree, filters by extension before offering anything,
-and picks a uniform subset in a single pass — no candidate list, no second walk
-per slot. Occupied slots are left alone except by `REROLL TRACK`, which is
-supposed to replace, and `CLEAR SLOTS`, which says what it does.
-
----
-
-## The filesystem layer ✅
-
-The gap every Octatrack RE project lists as open. The 23-slot FS vtable at
-`0x46c823fa`, its three implementations and which one the unit actually runs;
-and `0x40090a14`, a **recursive tree walker with a per-entry callback** that the
-stock sample-load path already calls.
-
-Trap: the walker enumerates a whole directory *before* invoking the callback, so
-the entry register holds the **last** entry, not the current one.
-
-→ [`docs/FS_LAYER.md`](docs/FS_LAYER.md)
-
-## The tail of the image is not free space ⚠️
-
-Two runs at the tail, 15,153 B and 12,288 B, hold zeros in the image and have
-**zero** static references pointing into them. Both are written at runtime.
-Code placed in the first produced a `VEC:03` address error in the menu draw
-loop on hardware.
-
-The finding is the inference rule, not the addresses: *no static references*
-means nothing is **known** to point at a region, not that nothing writes to it.
-Only a canary run — fill, exercise the unit, read back — settles it. The shared
-6 KB cave at `0x400d64da` is the one proven region, and octabam's list cave sits
-**inside** the range octamax is filling, so those two images already cannot be
-combined.
-
-→ [`docs/CAVES.md`](docs/CAVES.md)
-
-## The MAIN MENU tables — adding a category with no new instruction ✅
-
-A fifth top-level category beside PROJECT / SYSTEM / CONTROL / MIDI, built
-entirely from data: rows, a list descriptor and an icon. Runs on a MKI; the
-stock tree opens, draws, scrolls and closes it.
-
-Three rules, each closing something still marked open upstream, each paid for
-by a build that failed on the unit:
-
-- A row whose **action is null is a section heading** the cursor skips.
-- `[ENTER]` dispatches on the **page id at `+0x14`**, and only falls through to
-  the action at `+0x08` when that id is 0 — so a row inside a pane cannot
-  descend, whatever its child pointer says.
-- A list descriptor is **inert until initialised at boot**; one built by hand
-  needs `+0x10`, the visible-row count, or its pane draws empty.
-
-The window descriptor at `+0x04` turns out to be the category's **icon**
-(octabam's MAINMENU.md marks `+0x08..+0x14` uninterpreted and its section 8
-lists this one undecoded).
-
-→ [`docs/MENU.md`](docs/MENU.md)
-
-## Loading a sample into a slot ✅
-
-`ot_static_slot_load` is **half** of it. Its one caller in the image is the
-storage-job dispatcher, which follows it with a post-load and two refreshes; a
-slot loaded without them displays its name and size, shows no BPM, and will
-neither preview nor trig.
-
-And a refused load is not silent: the loader stamps a per-slot status record
-that the audio pool renders as `ERROR: <reason> : <name>`, which clearing the
-name does not undo. `-0x10` is *no extension at all* — what a **directory name**
-returns — as distinct from `-0x1e`, a wrong one.
-
-→ [`docs/SLOT_LOADING.md`](docs/SLOT_LOADING.md)
-
-## The current track, and the slot it plays ✅
-
-The selected track is one byte; the slot it plays takes an arithmetic step
-through the active bank buffer, and the machine-type byte in the middle is what
-says whether the track is playing from the static pool at all. Also: where
-`RANDOMIZE PAGE` lives, what it takes, and the one thing still unknown about
-calling it.
-
-→ [`docs/TRACK.md`](docs/TRACK.md)
-
-## What a sample slot actually is ✅
-
-Three things must be right at once and each is silent when wrong: `PATH=` is
-stored **bare**, with no quotes; the length in bars is **computed from the
-file** and must never be copied from another slot; and half the state lives in
-`markers.work`, a file named in other projects but whose layout is documented
-nowhere. Verified end to end — 32 slots written from the host, then loaded,
-previewed and trigged on the unit.
-
-Parsing trap: `^KEY=.*$` eats the `\r` of these CRLF files. Anchor on
-`[^\r\n]*`.
-
-→ [`docs/PROJECT_FILE.md`](docs/PROJECT_FILE.md)
+[octa-bt-pt](https://github.com/bryantysinger/octa-bt-pt) as reference, and
+publishes only what they still mark open.
 
 ---
 

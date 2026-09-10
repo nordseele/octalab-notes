@@ -343,3 +343,65 @@ site to read it off.
 Note what the UI does *not* do here: it never posts the voice re-arm
 (`FUN_40093468`). `FUN_40093814` has already dropped the slot from the trig and
 slice tables, so there is nothing left pointing at it.
+
+
+## The menu-state table, read properly ✅ (8 Sep 2026)
+
+`docs/MENU.md` said "ids 1..15 open the matching entry of the 16-entry
+menu-state table at `0x400cbdac`". The count was wrong and the shape was
+guessed. Dumped, it is a table of **7-long records, stride `0x1c`**:
+
+```
+id  0 @0x400cbdac  0 0 0 0 0 0 0                      <- the "no page" id
+id  1 @0x400cbdc8  40064908 40064e64 0 40065414 …     <- 0x40064e64 is the [ENTER] handler
+id  2 @0x400cbde4  0 400658d4 0 40065674 …
+…
+id 11 @0x400cbee0  40069dfc 40069b4c 0 0 400cc6f8 0 0
+id 12 @0x400cbefc  0 06004006 50680000 …              <- not a record: misaligned
+```
+
+**Eleven pages, not fifteen**, and the table ends after id 11. What follows is
+other live data — `0x400cbf34` and `0x400cbf50` hold structures, and
+`0x400cbf4c` is the menu window handle this document already names.
+
+The conclusion is the one build 2 paid for, only firmer: **there is no free page
+id.** Id 0 is the fall-through-to-the-action case and 1..11 are occupied, so a
+settings page of our own — with the stock checkbox rows that CONTROL → INPUT and
+CONTROL → AUDIO draw — cannot be hosted by giving a row an unused id.
+
+🟡 What is *not* ruled out is calling the checkbox draw primitive from a context
+we already own. That needs the primitive located first, which is its own reading
+job: the settings pages are drawn by page-specific code reached through these
+records, not by the row renderer, which is why no row in the whole menu tree
+uses the value-getter field at `+0x0c` (measured: zero of them).
+
+
+## A checkbox page without a page id ✅ (8 Sep 2026)
+
+There is no free page id, so the stock settings pages — CONTROL → INPUT and its
+real checkbox widgets — cannot be cloned. The OCTALAB category is a menu-tree
+list instead, and its rows carry the checkbox **in the label**:
+
+```
+SC PITCH    [ ]
+SC LFO      [X]
+FILL OVERWR [ ]
+```
+
+On a one-bit display that is what a checkbox is. It needs no new widget and no
+new interface, only two things already proven on hardware: the menu draws labels
+through pointers, and **the cave is writable at runtime** — which the popup's
+last-row cell demonstrated without anyone setting out to test it.
+
+Three details make it work:
+
+- **Fixed-stride label buffers.** Every label is 20 bytes with the box at
+  offset 13, so one toggle routine serves every row by indexing them.
+- **Which row ran** comes from the descriptor's absolute selection at `+0x0c`,
+  the same read the popup uses for its last-row cell. No per-row stub.
+- **The main menu is a live screen.** Unlike the popup, it redraws on its own,
+  so a label that changes appears without being asked to — which is exactly what
+  the one-shot title and the first RANDOM FX both got wrong.
+
+The defaults ship in the image, so they reset at every boot. That is the deal
+for now; `docs/PROJECT_FILE.md` has where they would persist.

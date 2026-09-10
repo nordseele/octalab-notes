@@ -191,3 +191,41 @@ Both bugs above were found the same way, and neither was findable by reasoning:
 
 Two rounds of that, at one RELOAD each, settled a format that static analysis
 had got wrong twice. Ask the machine; do not ask a note about the machine.
+
+
+## Where octalab's own settings should live ✅ (8 Sep 2026)
+
+The stock per-project options — CONTROL → INPUT, → AUDIO and the rest — are
+saved in `project.work`, so the obvious place for ours is beside them. Measured
+against a real card, it is the wrong place.
+
+**`project.work` is plain text with no checksum.** `[SECTION] KEY=VALUE`, CRLF,
+`VERSION=19` in `[META]`, and it ends on a comment banner — no trailer, no sum.
+(Bank files are the opposite: `bank##.work` carries an additive checksum that
+must be recomputed on any edit.) So adding a key is textually trivial, and that
+is not the problem.
+
+The problem is the round trip:
+
+- **Old projects on our firmware** are fine. They simply lack our keys and we
+  default them. This direction never breaks.
+- **Our projects on stock firmware** are not. The key names live in a
+  NUL-separated string pool (`0x400b7a4c`…, `WRITEPROTECTED` at `0x400b7e55`)
+  and the serializer writes the file from its own field list — so unknown keys
+  are dropped on the first save made anywhere else. Settings would vanish
+  silently rather than loudly. 🟡 And whether the *parser* merely skips an
+  unknown key or objects to it has not been read.
+
+**A sidecar file avoids all of it**, and the card already proves it is safe: the
+host-side tool left `project.work.poolfill-bak-1` in a project folder and the
+unit has been running on that project ever since without noticing. The OS opens
+the files it knows by name; an extra one is invisible to it.
+
+So: a file of our own in the project directory, written with the primitives in
+`docs/FS_LAYER.md` (`0x40016864` open, `0x400166b8` write, `0x4001677c` close).
+No format to share, no checksum to recompute, no version gate, and no way for a
+stock save to erase it.
+
+Incidentally, our builds already sign every project they touch:
+`OS_VERSION=R0178     OLAB8` is in `[META]`, so a project that has been through
+octalab is identifiable from the file alone.
