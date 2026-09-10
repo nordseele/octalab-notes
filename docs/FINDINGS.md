@@ -86,17 +86,26 @@ loaded, previewed and trigged on the unit.
 
 → [`PROJECT_FILE.md`](PROJECT_FILE.md)
 
-## Trigs: the step masks
+## Trigs: the step masks, and where a sample lock lives ✅
 
-The four placeable trig types each own one step mask; the families the
-firmware's own menus name; and the fact that *create random locks* is a stock
-slice-editor function. ❌ Its handler, paired with its row by position, was
-contradicted on hardware (it opens `DELETE SLICES ?`).
+The four placeable trig types each own one 64-bit step mask. After the masks,
+each track holds **64 step records of 32 bytes** from `TRAC + 0x59`; the
+**sample lock is byte 31**: `bank + pattern*0x8ed8 + track*0x91a + 0x78 +
+(step-1)*0x20`, `0xff` = none. The stock store is `0x40040ee0(slot)`, the LOCK
+picker's callback, which takes its steps from `0x460d174a`/`0x460d174c` and
+also writes a second copy at `0x1001614e`. Called from outside the picker it
+works on hardware. (Also: *create random locks* is a stock slice-editor
+function, but its handler paired by position was wrong ❌.)
 
-## The current part is not the current pattern 🟡
+→ [`TRIGS.md`](TRIGS.md)
 
-`0x100b14cf` holds the part the current pattern links to; the pattern index
-is `[0x80000004]` (a code read, with its falsifier).
+## Current pattern, current part, machine type ✅
+
+`[0x80000004]` (mirror `0x100b14d0`) is the current pattern and `0x100b14cf`
+(mirror `0x80000003`) the current part — measured under emulation by the
+firmware's own project loader, and consistent with how every reader in the
+image uses them. Machine type 0 is STATIC, 1 FLEX: the LOCK picker titles
+itself from it.
 
 → [`TRACK.md`](TRACK.md)
 

@@ -32,21 +32,25 @@ a page of checkboxes. The options go back to their defaults at every power-on.
 
 ## Functions
 
-✅ used on the unit and working · ⚠️ does not do what it should yet
+The rows are grouped by what they act on — the sample pool, the current
+track, the scenes, the trigs — with the one that erases last in its group.
+✅ = used on the unit and working.
 
 | row | what it does | |
 |---|---|---|
+| **pool** | | |
 | `FILL POOL` | fills every empty STATIC sample slot with random audio found anywhere in the set's `AUDIO` folder | ✅ |
-| `APPEND 8 FILES` | the same, for the next eight empty slots only | ✅ |
 | `SHUFFLE POOL` | re-deals the loaded samples among the slots they occupy | ✅ |
-| `REROLL TRACK` | replaces the sample the current track plays (static machines only) | ✅ |
-| `RESET TRACK` | puts the current track's parameters back to their defaults (the choice of effects is kept, for now) | ✅ |
-| `RANDOM FX` | chooses random effects for the current track | ✅ |
-| `RANDOM LFO` | randomises the current track's LFOs, including what they modulate | ✅ |
-| `RND SLICE LK` | meant to be the slice editor's *create random locks*; today it opens a `DELETE SLICES ?` prompt instead — **answer NO**. Being reworked | ⚠️ |
-| `CREATE 16 SCENES` | fills all sixteen scenes with random locks; the OCTALAB options choose which pages. A new scene takes effect once you select it | ✅ |
+| `CLEAR POOL` | empties every sample slot — there is no confirmation | ✅ |
+| **track** | | |
+| `INIT TRACK` | puts the current track back the way a new project starts it: every parameter page, FX1 on FILTER and FX2 on DELAY, its sample slot, its scene locks. The trigs stay — a clean sound under the same sequence | ✅ |
+| `RANDOMIZE FX` | chooses random effects for the current track | ✅ |
+| `RANDOMIZE LFO` | randomises the current track's LFOs, including what they modulate | ✅ |
+| **scenes** | | |
+| `GENERATE SCENES` | fills scenes 2 to 16 with random locks, the OCTALAB options choosing which pages; **scene 1 stays blank**, so a clean scene is always there. A new scene takes effect once you select it | ✅ |
 | `CLEAR SCENES` | empties all sixteen scenes | ✅ |
-| `CLEAR SLOTS` | empties every sample slot — there is no confirmation | ✅ |
+| **trigs** | | |
+| `RND SAMPLE LOCKS` | gives every normal (red) trig of the current track, in the current pattern, a sample lock to a random sample from the pool. Trigless trigs are left alone; the locks are ordinary ones, kept across pattern changes and editable as usual | ✅ |
 
 Options page: `SC PITCH`, `SC START`, `SC LENGTH`, `SC RATE`, `SC RETRIG`,
 `SC LFO`, `SC LFO DEST`, `SC AMP`, `SC FX` (what `CREATE 16 SCENES` may touch;
@@ -58,10 +62,10 @@ This list grows as functions are added.
 ## State of the project
 
 - **One machine, one OS:** Octatrack MKI, OS 1.40C. Nothing else is supported.
-- **Working today:** the menu, the options page, the pool functions, the
-  track functions and the scene functions. `RND SLICE LK` is being reworked.
-- **In progress:** randomising the sequencer itself — random sample locks on
-  trigs, and random trigless layers.
+- **Working today:** everything in the table above (the unit's current build
+  shows `RND SAMPLE LOCKS` under its earlier name, `RND TRIG SLOTS`).
+- **In progress:** more trig functions — random parameter locks, and layers of
+  trigless trigs.
 - **Not combinable** with octamax or the standalone 1.40MIDISC in one image:
   all three use the same small free area of the firmware.
 - **No build is distributed**, now or later: an image contains Elektron's OS.

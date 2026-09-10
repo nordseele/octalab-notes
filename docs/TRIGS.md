@@ -67,19 +67,22 @@ is tied to its row by a reference rather than by position.
 editor's own state. Calling it from a menu that is not that editor is the same
 bet the popup title and the first RANDOM FX both lost.
 
-## What is missing, and the cheap way to get it
+## RND SAMPLE LOCKS — the store, called from outside the picker ✅ (hardware, 10 Sep 2026)
 
-**Which mask is a trigless trig.** Nobody upstream has it, and it is what "add a
-layer of trigless trigs" needs. octabam's own method settles it in one pass and
-needs no disassembly:
+octalab's first trig function gives every red trig (mask `0x00`) of the
+current track, in the current pattern, a sample lock to a random slot among
+those loaded in the track's pool (STATIC for machine type 0, FLEX for 1; any
+other machine is left alone). It writes nothing itself. For each step it:
 
-1. copy a project to the card as a baseline,
-2. on the unit, add one trigless trig at a known step on a known track, save,
-3. diff the two `bank01.work` files — the changed bit names the mask.
+1. sets `0x460d174c` to the step's page (0, 16, 32, 48) and the 16-bit held-key
+   mask `0x460d174a` to that one step,
+2. calls the stock store `0x40040ee0(slot)`,
 
-The card is mountable from here, so the diff is a script, not a build. That is
-the next step, and it also settles `0x08`, `0x10`, `0x18` and `0x38` for one
-trig type each if the same pass places one of each.
+and afterwards puts both globals back. The store does the rest — bank byte,
+second copy at `0x1001614e`, dirty flags, the "step has a lock" bitmaps
+(`0x400339d8` → `0x46c7d48c`), screen refresh. On the unit the locks behave
+exactly like hand-placed ones and survive a pattern change. Trigless trigs are
+not touched: they do not retrigger the sample.
 
 
 ## Sample locks — the trail, and where it stops 🟡 (8 Sep 2026)
@@ -111,10 +114,23 @@ one, based near the head of the blob at `+0x78`. The `<<5` and the bit-scan
 above it (`neg`/`and` to isolate the held trig key, then `31 - n`) are the step
 index being turned into a record offset.
 
-⬜ **What is missing** is the `d3`/`d6` terms — the pattern and track
-contributions to that index. One more read of the same function settles it, and
-then a sample-lock randomiser is a loop over the steps a track's note mask
-(`0x00`) has set.
+✅ **Settled (10 Sep 2026).** `d3` = current pattern (`0x100b14d0`) × `0x8ed8`,
+`d6` = track × `0x91a`, `a0` = the page's first step (`0x460d174c`), and the
+held trig key comes from the 16-bit mask `0x460d174a`:
+
+```
+lock(p, t, s) = bank + p*0x8ed8 + t*0x91a + 0x78 + (s-1)*0x20
+```
+
+The gesture passes `0x40040ee0` as the picker's third argument, and the picker
+calls it with the new slot when the selection changes. **That is the store**:
+for each held step it writes the byte above and the same byte of a second copy
+at `0x1001614e + p*0x8ed8 + t*0x91a + …`, raises the dirty flags, then
+rebuilds the per-step "has a lock" bitmaps (`FUN_400339d8`) and refreshes the
+screen. Value = slot 0..127 (FLEX also 128..135, the recorder buffers), `0xff`
+= none. Three independent lines: the code (read and store), the real bank
+files (next section), and the store run under emulation — one byte moves, at
+`+0xb8` for step 3.
 
 **The cheaper confirmation, either way**: baseline a project on the card, set a
 sample lock on a known step and track, save, and diff the two `bank01.work`
@@ -147,8 +163,8 @@ LED colours:
 | `0x18` | **one-shot trig** | orange |
 
 `0x00` was already settled independently — octabam's rig project reads its note
-trigs there. 🟡 on `0x10` is the placer's own ("je crois"), and the falsifier is
-cheap: place one deliberately and see which mask moves.
+trigs there. 🟡 on `0x10` is the placer's own tentative reading, and the falsifier
+is cheap: place one deliberately and see which mask moves.
 
 This is new to all four upstream repositories: octamax and octabam both mark
 "Trig types / p-locks / sample locks" ⬜ in their COVERAGE.
@@ -171,11 +187,12 @@ The masks occupy `+0x00..+0x3f`. What follows, in the same TRAC record:
 | `+0x50..+0x57` | a short header — `10 02 00 ff 00 01 00 00` on this track |
 | `+0x58` onward | long runs of **`0xff`**, with isolated real values |
 
-`0xff` as "nothing here" is the same sentinel the scene locks use, so these read
-as **per-step p-lock arrays**. On this track exactly two bytes are not `0xff`:
-`+0x98 = 12` and `+0x138 = 7`.
-
-⬜ Which array is the sample lock, and how a step indexes it, is the one thing
-left. It is a two-minute experiment rather than a reading job: set a **known**
-sample lock — a specific slot on a specific step of a known track — save, and
-diff. One byte moves, and its position names both.
+✅ **They are not arrays: they are 64 step records of 32 bytes**, from `+0x59`
+(`FUN_400339d8` walks exactly `+0x59 + s*0x20`, 32 bytes, to flag a step as
+locked). Byte 31 of each is the sample lock, so the two "isolated values" were
+sample locks all along: `+0x98` is step 2's (a red trig) and `+0x138` step 7's
+(a trigless trig). Read this way, the test track carries locks on steps 2, 7,
+8, 14, 15, 16 — every one a step with a trig; the earlier one-byte reading saw
+none of them. 🟡 Bytes 0..30 are presumably the parameter locks, likely in the
+scene numbering (PLAYBACK 0..5, LFO 6..11, AMP 12..17, FX1 18..23, FX2 24..29);
+one card diff with a known p-lock settles it.

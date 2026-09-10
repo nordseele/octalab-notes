@@ -27,12 +27,20 @@ moveb  %d0,0x80000003
 moveb  %d0,0x100b14cf
 ```
 
-So `[0x80000004]` would be the current pattern, and `0x80000003` /
-`0x100b14cf` its part (octamax uses the `0x100b14cf` mirror, and that is the
-one with hardware behind it). One line of evidence — a code read — hence 🟡.
+So `[0x80000004]` is the current pattern, and `0x80000003` / `0x100b14cf`
+the current part (octamax uses the `0x100b14cf` mirror, and that is the one
+with hardware behind it).
 
-**Falsifier:** switch patterns under emulation; `0x80000004` does not follow
-the pattern number, or `0x100b14cf` does not follow the pattern's part link.
+**Emulator, 10 Sep 2026.** The firmware's own LOAD PROJECT stores the
+`PATTERN=` key of `project.work` into `0x80000004` and its mirror
+`0x100b14d0` (`0x40087d82`/`0x40087d88`), and the `PART=` key into
+`0x80000003`/`0x100b14cf` (`0x40087ea6`/`0x40087eac`). Four variants of a real
+project (PATTERN 1/5/9, BANK 0/2, PART 0/3) moved each global with its own key
+and nothing else. At load the part is the saved `PART=`, **not** the loaded
+pattern's link: relinking the pattern to part 2 or 3 left `0x100b14cf` at 0.
+Across the image, reads of `0x80000004`/`0x100b14d0` are followed by the
+pattern stride `0x8ed8` and never by the part stride `0x18b2`; reads of
+`0x100b14cf` by `0x18b2`. Not yet observed on hardware, hence still 🟡.
 
 ## Which slot that track plays ✅
 
@@ -61,8 +69,12 @@ array instead.
 **Falsifier:** REROLL TRACK does nothing on a track that plainly is a static
 machine.
 
-`0x4006de34(type, slot)` is the OS's own publisher for the pair, if a feature
-ever needs to *change* which slot a track plays rather than what is in it.
+`0x4006de34(kind, value)` is not a plain publisher, as this page once said:
+it stashes its two arguments into `0x46c8d1a0`/`0x46c8d19c`, the inputs of a
+two-phase stage-then-commit slot selection driven by the UI (octabam's
+`MAINMENU.md`), and octamax traces five call sites that set the audio
+editor's current slot through it. Changing which slot a track plays from
+outside that UI is still an open question 🟡.
 
 ## RANDOMIZE PAGE 🟡 — decoded, deliberately not wired
 
