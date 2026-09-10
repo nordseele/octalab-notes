@@ -51,21 +51,31 @@ track, the scenes, the trigs — with the one that erases last in its group.
 | `CLEAR SCENES` | empties all sixteen scenes | ✅ |
 | **trigs** | | |
 | `RND SAMPLE LOCKS` | gives every normal (red) trig of the current track, in the current pattern, a sample lock to a random sample from the pool. Trigless trigs are left alone; the locks are ordinary ones, kept across pattern changes and editable as usual | ✅ |
+| `RND PARAM LOCKS` | gives every normal (red) trig of the current track a random parameter lock for each parameter ticked in the OCTALAB options (`PL …`), always inside that parameter's own range. The locks are ordinary ones: CLEAR TRIG LOCKS and live recording treat them as usual | ✅ |
 
-Options page: `SC PITCH`, `SC START`, `SC LENGTH`, `SC RATE`, `SC RETRIG`,
-`SC LFO`, `SC LFO DEST`, `SC AMP`, `SC FX` (what `CREATE 16 SCENES` may touch;
-LFO, LFO DEST and FX are on by default) and `FILL OVERWR` (lets the pool fill
-replace samples that are already loaded).
+The trig functions are **in development**: they start deliberately simple —
+every trig, the whole range — so that what stays musical and useful can be
+heard on the unit before it is refined. Controlled randomness (variations
+around the current value, ranges, density) comes next.
+
+Options page:
+- `SC PITCH`, `SC START`, `SC LENGTH`, `SC RATE`, `SC RETRIG`, `SC LFO`,
+  `SC LFO DEST`, `SC AMP`, `SC FX` — what `GENERATE SCENES` may touch (LFO,
+  LFO DEST and FX on by default);
+- `FILL OVERWR` — lets the pool fill replace samples that are already loaded;
+- `PL PITCH`, `PL START`, `PL LENGTH`, `PL RATE`, `PL RETRIG`, `PL LFO`,
+  `PL AMP`, `PL FX1`, `PL FX2` — which parameters `RND PARAM LOCKS` locks
+  (FX1 and FX2 on by default).
 
 This list grows as functions are added.
 
 ## State of the project
 
 - **One machine, one OS:** Octatrack MKI, OS 1.40C. Nothing else is supported.
-- **Working today:** everything in the table above (the unit's current build
-  shows `RND SAMPLE LOCKS` under its earlier name, `RND TRIG SLOTS`).
-- **In progress:** more trig functions — random parameter locks, and layers of
-  trigless trigs.
+- **Working today:** everything in the table above.
+- **In progress:** more trig functions — clearing a track's parameter locks,
+  varying locks around their value, trigless locks, random trig conditions —
+  and a homogeneous naming of the rows.
 - **Not combinable** with octamax or the standalone 1.40MIDISC in one image:
   all three use the same small free area of the firmware.
 - **No build is distributed**, now or later: an image contains Elektron's OS.

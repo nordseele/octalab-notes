@@ -67,6 +67,44 @@ is tied to its row by a reference rather than by position.
 editor's own state. Calling it from a menu that is not that editor is the same
 bet the popup title and the first RANDOM FX both lost.
 
+## The whole track record, mapped ✅ (10 Sep 2026)
+
+One calibration pair saved from the unit (an empty project, then one of each
+thing on track 1 of A01) and the code that reads and writes each field:
+
+| TRAC offset (RAM) | content |
+|---|---|
+| `+0x00` … `+0x48`, stride 8 | ten 64-bit step masks: trig · trigless trig · trigless lock · one-shot · recorder ×3 (one new recorder trig sets all three) · ? · **swing** (default `0xaa…`, every even step) · **slide** |
+| `+0x59 + (s-1)*0x20` | 32-byte step record: byte `k` = p-lock of parameter `k` in the scene numbering (PLAYBACK 0..5, LFO 6..11, AMP 12..17, FX1 18..23, FX2 24..29), byte 31 = sample lock, `0xff` = none |
+| `+0x89a + (s-1)*2` | a 16-bit **trig word**: bits 15-13 trig count − 1, bits 12-7 micro timing (signed, ±23), bits 6-0 trig condition |
+
+⚠️ In the bank **file** the trig words sit one byte earlier (`+0x899`): RAM
+pads the array to an even address, the file does not.
+
+Trig conditions (label table `0x400b2588`): 0 OFF, 1..8 FILL/PRE/NEI/1ST and
+their negations, 9..29 the probabilities 1…99 % (50 % = 19), 30..64 the A:B
+counters 1:2 … 8:8.
+
+The stock p-lock store is `0x4004f5f8(track, param, value)`, the same held-key
+contract as the sample-lock store — but it returns at once unless a trig key
+is physically down (and no list is open), so it cannot be called from a menu
+as it is.
+
+## RND PARAM LOCKS — the p-lock store's body, replicated ✅ (hardware, 10 Sep 2026)
+
+The stock p-lock store (`0x4004f5f8`) refuses to run from a menu, so octalab's
+second trig function performs its body for each red trig and each chosen
+parameter: the record byte `TRAC + 0x59 + param + (step-1)*0x20`, the same
+byte of the copy at `0x1001614e`, the track's bit in the step's lock bitmap
+(`0x46c7d48c[step]`), then the dirty flags (`bank+0x9b332`, `0x100f8598`,
+`0x40027e00`) and the refresh `0x4009da20`. Each value is drawn inside the
+parameter's descriptor range (`+0x6a` minimum, `+0x9a` count, per slot), and
+a slot the page disables (`+0x18e`, bit `slot*4`) is skipped, as the store
+does. Under emulation the stock store, its gates satisfied, writes exactly
+the same bytes. On the unit the locks behave as hand-made ones: they survive
+a pattern change, the stock CLEAR TRIG LOCKS removes them, live recording
+overwrites them.
+
 ## RND SAMPLE LOCKS — the store, called from outside the picker ✅ (hardware, 10 Sep 2026)
 
 octalab's first trig function gives every red trig (mask `0x00`) of the
