@@ -1,7 +1,7 @@
 # octalab
 
-Creative helper functions for the **Elektron Octatrack MKI**, added to the
-stock **OS 1.40C**.
+Creative helper functions for the **Elektron Octatrack**, added to the stock
+**OS 1.40C** — built and tested on an Octatrack MKI.
 
 octalab is about randomness, constrained chance and quick gestures: the machine
 handing you a starting point you would not have chosen, in the spirit of
@@ -44,14 +44,14 @@ track, the scenes, the trigs — with the one that erases last in its group.
 | `CLEAR POOL` | empties every sample slot — there is no confirmation | ✅ |
 | **track** | | |
 | `INIT TRACK` | puts the current track back the way a new project starts it: every parameter page, FX1 on FILTER and FX2 on DELAY, its sample slot, its scene locks. The trigs stay — a clean sound under the same sequence | ✅ |
-| `RANDOMIZE FX` | chooses random effects for the current track | ✅ |
-| `RANDOMIZE LFO` | randomises the current track's LFOs, including what they modulate | ✅ |
+| `RANDOM FX` | chooses random effects for the current track | ✅ |
+| `RANDOM LFO` | randomises the current track's LFOs, including what they modulate | ✅ |
 | **scenes** | | |
 | `GENERATE SCENES` | fills scenes 2 to 16 with random locks, the OCTALAB options choosing which pages; **scene 1 stays blank**, so a clean scene is always there. A new scene takes effect once you select it | ✅ |
 | `CLEAR SCENES` | empties all sixteen scenes | ✅ |
 | **trigs** | | |
-| `RND SAMPLE LOCKS` | gives every normal (red) trig of the current track, in the current pattern, a sample lock to a random sample from the pool. Trigless trigs are left alone; the locks are ordinary ones, kept across pattern changes and editable as usual | ✅ |
-| `RND PARAM LOCKS` | gives every normal (red) trig of the current track a random parameter lock for each parameter ticked in the OCTALAB options (`PL …`), always inside that parameter's own range. The locks are ordinary ones: CLEAR TRIG LOCKS and live recording treat them as usual | ✅ |
+| `RANDOM SMP LOCKS` | gives every normal (red) trig of the current track, in the current pattern, a sample lock to a random sample from the pool. Trigless trigs are left alone; the locks are ordinary ones, kept across pattern changes and editable as usual | ✅ |
+| `RANDOM P-LOCKS` | gives every normal (red) trig of the current track a random parameter lock for each parameter ticked in the OCTALAB options (`PL …`), always inside that parameter's own range. The locks are ordinary ones: CLEAR TRIG LOCKS and live recording treat them as usual | ✅ |
 
 The trig functions are **in development**: they start deliberately simple —
 every trig, the whole range — so that what stays musical and useful can be
@@ -64,20 +64,39 @@ Options page:
   LFO DEST and FX on by default);
 - `FILL OVERWR` — lets the pool fill replace samples that are already loaded;
 - `PL PITCH`, `PL START`, `PL LENGTH`, `PL RATE`, `PL RETRIG`, `PL LFO`,
-  `PL AMP`, `PL FX1`, `PL FX2` — which parameters `RND PARAM LOCKS` locks
+  `PL AMP`, `PL FX1`, `PL FX2` — which parameters `RANDOM P-LOCKS` locks
   (FX1 and FX2 on by default).
 
 This list grows as functions are added.
 
+## Roadmap
+
+- **More trig functions** — clearing a track's parameter locks, trigless
+  locks (randomised, then generated), random trig conditions, and *controlled*
+  randomness: variations around the current values rather than a fresh draw.
+- **Encoders in the octalab menu** — the LEVEL encoder to move between rows,
+  and a value per row (a percentage, an amount) set by turning an encoder.
+- **Generating trig sequences, perhaps whole patterns — not only at random.**
+  Euclidean rhythms, or pattern maps in the spirit of Mutable Instruments
+  Grids, so that what comes out is surprising but still makes musical sense.
+  Reusing well-loved existing code would be the fun way to do it, if the
+  firmware's memory and the licences allow.
+- **A key combination on a held trig** — open the audio editor on the sample
+  locked on that trig; randomise that one trig.
+- **Undo** for octalab's functions, randomised scenes included.
+
 ## State of the project
 
-- **One machine, one OS:** Octatrack MKI, OS 1.40C. Nothing else is supported.
-- **Working today:** everything in the table above.
-- **In progress:** more trig functions — clearing a track's parameter locks,
-  varying locks around their value, trigless locks, random trig conditions —
-  and a homogeneous naming of the rows.
-- **Not combinable** with octamax or the standalone 1.40MIDISC in one image:
-  all three use the same small free area of the firmware.
+- **Machines:** built and tested on an Octatrack MKI running OS 1.40C. The
+  MKII runs the same OS 1.40C image, so octalab should work there as well —
+  not tested yet, reports welcome. No other OS version.
+- **Working today:** everything in the functions table.
+- **Built to coexist.** octalab keeps its changes small and checks them against
+  other people's mods (none of its bytes touch ems-octakit's), so that it can be
+  combined with the community's work — ideally one day in a shared, modular
+  build. Today it still shares one small free area of the firmware with
+  octamax and the standalone 1.40MIDISC, so those cannot sit in the same image
+  yet.
 - **No build is distributed**, now or later: an image contains Elektron's OS.
 
 ## For other firmware projects

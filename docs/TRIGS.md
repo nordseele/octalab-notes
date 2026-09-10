@@ -4,18 +4,23 @@ OS 1.40C, MAIN OS sha256 `164f3122…`, load base `0x40000400`.
 
 ## The storage ✅ (octabam)
 
-A track's trigs are **eight 64-bit big-endian step masks at an 8-byte stride**,
+A track's trigs are **ten 64-bit big-endian step masks at an 8-byte stride**,
 at the head of the track's record in the pattern: bit `step-1`, so byte 7 bit 0
 is step 1. `refs/octabam/tools/ot_project.py` reads and writes them in bank
 files, and `emu_frames.poke_trig` sets one in RAM through the bank pointer at
-`0x46c82456`.
+`0x46c82456`. Identified by placing one of each on the unit and diffing
+(section "The whole track record" below):
 
 | mask | what |
 |---|---|
-| `0x00` | note trigs ✅ |
+| `0x00` | sample / note trigs (red) ✅ |
+| `0x08` | trigless trigs (full-bright green) ✅ |
+| `0x10` | trigless locks (half-bright green) ✅ |
+| `0x18` | one-shot trigs (yellow) ✅ |
 | `0x20` + `0x28` + `0x30` | a **recorder trig** — all three at once ✅ |
-| `0x08` `0x10` `0x18` `0x38` | ⬜ not identified |
-| `0x40` `0x48` | **not masks** — they read as a run of `0xaa` |
+| `0x38` | ⬜ not identified |
+| `0x40` | **swing trigs** ✅ — the default `0xaa…` is every even step (octabam read it as "not a mask") |
+| `0x48` | **slide trigs** ✅ |
 
 The recorder-trig line is hardware-settled (octabam, `docs/RTOS_FORK.md`,
 6 Sep 2026): a byte-exact baseline, one `[TRIG]` press on the unit, and a diff
@@ -90,7 +95,7 @@ contract as the sample-lock store — but it returns at once unless a trig key
 is physically down (and no list is open), so it cannot be called from a menu
 as it is.
 
-## RND PARAM LOCKS — the p-lock store's body, replicated ✅ (hardware, 10 Sep 2026)
+## RANDOM P-LOCKS — the p-lock store's body, replicated ✅ (hardware, 10 Sep 2026)
 
 The stock p-lock store (`0x4004f5f8`) refuses to run from a menu, so octalab's
 second trig function performs its body for each red trig and each chosen
@@ -105,7 +110,7 @@ the same bytes. On the unit the locks behave as hand-made ones: they survive
 a pattern change, the stock CLEAR TRIG LOCKS removes them, live recording
 overwrites them.
 
-## RND SAMPLE LOCKS — the store, called from outside the picker ✅ (hardware, 10 Sep 2026)
+## RANDOM SMP LOCKS — the store, called from outside the picker ✅ (hardware, 10 Sep 2026)
 
 octalab's first trig function gives every red trig (mask `0x00`) of the
 current track, in the current pattern, a sample lock to a random slot among
