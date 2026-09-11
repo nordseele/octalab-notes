@@ -101,12 +101,15 @@ This list grows as functions are added.
   MKII runs the same OS 1.40C image, so octalab should work there as well —
   not tested yet, reports welcome. No other OS version.
 - **Working today:** everything in the functions table.
-- **Built to coexist.** octalab keeps its changes small and checks them against
-  other people's mods (none of its bytes touch ems-octakit's), so that it can be
-  combined with the community's work — ideally one day in a shared, modular
-  build. Today it still shares one small free area of the firmware with
-  octamax and the standalone 1.40MIDISC, so those cannot sit in the same image
-  yet.
+- **Built to coexist — and now a module of octabam's remixer.** octalab builds
+  as a ColdFire DRAM module of [octabam](https://github.com/sambanks/octabam)'s
+  remixer: its code lives in octabam's memory reserve rather than in the
+  firmware's small free areas, and it changes only three things in the OS (a
+  hook on the [FUNCTION] press, the MAIN MENU's category count and category
+  list). That build **runs on an Octatrack MKI** (11 Sep 2026). Combined with
+  ems-octakit's Kits it builds and boots under octabam's emulator, with no
+  collision; that image has not been flashed yet. The module itself is not
+  published yet.
 - **No build is distributed**, now or later: an image contains Elektron's OS.
 
 ## For other firmware projects

@@ -109,6 +109,17 @@ itself from it.
 
 → [`TRACK.md`](TRACK.md)
 
+## octabam's DRAM loader boots on a MKI ✅
+
+An image built by octabam's remixer (origin `9a49f21`) — its loader appended
+at `0x4010fdf0`, reached from the boot site `0x4000050c`, depacking a ColdFire
+DRAM unit into the platform reserve at the bottom of the audio page arena
+(`0x40a955e0`, 10 MiB) — **ran on an Octatrack MKI** on 11 Sep 2026, with a
+module hooked by one detour, one poke and one grown table, and the FX2 chooser
+rebuilt with the fourteen stock effects (15 rows, the long list at
+`0x400d7bbc`). octabam's own notes (10 Sep) list their ColdFire pipeline as
+unflashed and every test as MKII: this is the MKI data point.
+
 ## Input maps and the encoders ✅
 
 A screen owns keys and knobs by registering an input map
