@@ -15,7 +15,7 @@ the image that points into them:
 |---|---:|---:|---|
 | `0x401087e4 .. 0x4010c315` | 15,153 B | **0** | ~~octalab~~ — **live at runtime, unusable** |
 | `0x4010cdd1 .. 0x4010fdf0` | 12,319 B | **0** | ~~octalab~~ — same verdict |
-| `0x400d64da .. 0x400d7c3c` | 5,986 B | 2 | octamax (all features), octabam (`0x400d6b00`), standalone 1.40MIDISC (`0x400d6500..0x400d7c48`, its `tools/midisc/memory_map.py` @`eaf46d7`), **octalab `0x400d64e0..0x400d73df`** (build OLB22, measured by diff against stock) — contested, nearly full |
+| `0x400d64da .. 0x400d7c3c` | 5,986 B | 2 | octamax (all features), octabam (`0x400d6b00`), standalone 1.40MIDISC (`0x400d6500..0x400d7c48`, its `tools/midisc/memory_map.py` @`eaf46d7`), **octalab `0x400d64e0..0x400d7bf5`** (build v22: 69 B left) — contested, **full** |
 | `0x400d24d0 .. 0x400d2ce0` | 2,064 B | 1 | **octabam** — `modules/menushortcut` pins its 300-byte cave here |
 | `0x4010c350 .. 0x4010c57e` | 558 B | 2 | unclaimed |
 

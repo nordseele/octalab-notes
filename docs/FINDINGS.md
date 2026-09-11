@@ -109,4 +109,19 @@ itself from it.
 
 → [`TRACK.md`](TRACK.md)
 
+## Input maps and the encoders ✅
+
+A screen owns keys and knobs by registering an input map
+(`0x40031494` / off `0x4003146c`), and maps are **layers**: every registration
+rebuilds two RAM tables — keys `0x46c7d8de + code*0x18`, encoders
+`0x46c7dede + enc*0x14` — and the last map registered wins. A key field of -1
+lets the layer below through; an encoder listed with a null handler is
+**swallowed**, which is how a popup locks the knobs over the page behind. An
+encoder handler is `(encoder, delta)`; **A..F = 0..5, LEVEL = 6**, press codes
+`0x38..0x3e`; arrows `0x33 0x20 0x34 0x21`, ENTER `0x31`, EXIT `0x32`. Run on a
+MKI: a map of octalab's own on top of the stock list's drives LEVEL, the arrows
+and encoder A, and the tables return to stock when it comes off.
+
+→ [`INPUT.md`](INPUT.md)
+
 → [`TRIGS.md`](TRIGS.md)

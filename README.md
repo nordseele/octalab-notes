@@ -17,14 +17,26 @@ the way.
 ## The octalab menu: double-tap [FUNCTION]
 
 Everything octalab adds is in one list. **Tap [FUNCTION] twice, quickly**, from
-almost any screen, and the list opens over whatever you were doing. Pick a row
-with the arrows, press **[ENTER]**; **[EXIT]** closes the list.
+almost any screen, and the list opens over whatever you were doing. It has one
+row per subject — the sample pool, the scenes, the trigs, the track… — and
+each row shows one action:
 
+- **LEVEL** (or the up/down arrows) moves between rows;
+- **[LEFT] / [RIGHT]** choose the row's action — `<` and `>` show where they
+  lead, and they stop at the ends rather than wrapping around;
+- **[ENTER]**, or **pressing LEVEL**, runs it; **[EXIT]** closes the list;
+- a function that takes an amount shows it on its row, and **encoder A** sets it.
+
+- **An action that erases asks first** (YES/NO), always sits last on its row,
+  and the row goes back to its first action afterwards.
 - **[FUNCTION] still works as before.** A single press, or [FUNCTION] held with
   another key, does what it always did. The menu opens only on two presses in a
   row with no other key in between.
-- **The list remembers the last row you used.** A function you repeat is
-  double-tap, then [ENTER].
+- **The list remembers the last row, and each row its last action.** A
+  function you repeat is double-tap, then [ENTER].
+- **Nothing underneath moves** while the list is open: the other knobs stay
+  locked, as in every Octatrack popup, and everything is back to normal once it
+  closes.
 
 Some functions have options. They are in **OCTALAB**, a fifth category of the
 MAIN MENU (`[FUNCTION] + [MIXER]`), beside PROJECT, SYSTEM, CONTROL and MIDI:
@@ -32,16 +44,16 @@ a page of checkboxes. The options go back to their defaults at every power-on.
 
 ## Functions
 
-The rows are grouped by what they act on — the sample pool, the current
-track, the scenes, the trigs — with the one that erases last in its group.
+Grouped by what they act on. How they are split into rows is still moving
+(the next build gives LFO, FX and trigs rows of their own).
 ✅ = used on the unit and working.
 
-| row | what it does | |
+| function | what it does | |
 |---|---|---|
 | **pool** | | |
 | `FILL POOL` | fills every empty STATIC sample slot with random audio found anywhere in the set's `AUDIO` folder | ✅ |
 | `SHUFFLE POOL` | re-deals the loaded samples among the slots they occupy | ✅ |
-| `CLEAR POOL` | empties every sample slot — there is no confirmation | ✅ |
+| `CLEAR POOL` | empties every sample slot, after a YES/NO | ✅ |
 | **track** | | |
 | `INIT TRACK` | puts the current track back the way a new project starts it: every parameter page, FX1 on FILTER and FX2 on DELAY, its sample slot, its scene locks. The trigs stay — a clean sound under the same sequence | ✅ |
 | `RANDOM FX` | chooses random effects for the current track | ✅ |
@@ -74,8 +86,6 @@ This list grows as functions are added.
 - **More trig functions** — clearing a track's parameter locks, trigless
   locks (randomised, then generated), random trig conditions, and *controlled*
   randomness: variations around the current values rather than a fresh draw.
-- **Encoders in the octalab menu** — the LEVEL encoder to move between rows,
-  and a value per row (a percentage, an amount) set by turning an encoder.
 - **Generating trig sequences, perhaps whole patterns — not only at random.**
   Euclidean rhythms, or pattern maps in the spirit of Mutable Instruments
   Grids, so that what comes out is surprising but still makes musical sense.
