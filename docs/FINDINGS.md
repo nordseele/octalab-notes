@@ -120,6 +120,13 @@ rebuilt with the fourteen stock effects (15 rows, the long list at
 `0x400d7bbc`). octabam's own notes (10 Sep) list their ColdFire pipeline as
 unflashed and every test as MKII: this is the MKI data point.
 
+⚠️ On that image the audio pool's Flex list reads **FREE MEM 71.4 MB** — the
+10 MiB reserve is gone from the pool — but the **MEMORY page still shows an
+85.5 MB total** (visible when changing RESERVE LENGTH): its total does not
+follow the rewritten arena geometry. The page count 14,602 (`0x0000390a`)
+appears as a word at 18 places in stock and most stay untouched; which one the
+page reads is not yet pinned.
+
 ## Input maps and the encoders ✅
 
 A screen owns keys and knobs by registering an input map
