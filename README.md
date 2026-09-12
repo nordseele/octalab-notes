@@ -67,9 +67,9 @@ a page of checkboxes. The options go back to their defaults at every power-on.
 
 Shortcuts that make the stock workflow shorter, without a menu.
 
-| gesture | what it does | |
-|---|---|---|
-| **[TRIG] + [BANK]** in grid recording | opens the **audio editor on the sample locked on that trig** — or, if the trig has no sample lock, on the sample the track's machine plays. In the stock OS [BANK] ignores the held trig and opens the bank selection; here it goes straight to the sample you are working on, and the trig stays as it was when you let go. [BANK] alone, or outside grid recording, works as before | ✅ |
+| function | shortcut | what it does | |
+|---|---|---|---|
+| **Quick access to the sample edit window on MK1** | **[TRIG] + [BANK]** (grid recording) | opens the **audio editor on the sample locked on that trig** — or, if the trig has no sample lock, on the sample the track's machine plays (STATIC and FLEX). In the stock OS [BANK] ignores the held trig and opens the bank selection; here it goes straight to the sample you are working on, and the trig stays as it was when you let go. [BANK] alone, or outside grid recording, works as before | ✅ |
 
 ## Functions
 
