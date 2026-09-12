@@ -15,6 +15,24 @@ the way.
 
 ---
 
+## 🚧 In development: a topographic trig generator
+
+**The main piece of work right now** is a trig generation page for the
+Octatrack's sequencer, inspired by Mutable Instruments' **Grids**
+("topographic drum sequencer"):
+
+- **move through a map of rhythms with two encoders (X and Y)** — the
+  patterns morph smoothly from one rhythm into another as you turn;
+- **a fill amount per track**, from a sparse skeleton to a dense pattern, the
+  most important hits appearing first; a chaos amount for variations;
+- **every track of the pattern**, chosen with the track keys; each track
+  follows the kick, snare or hi-hat lane of the map at its own density;
+- **you see the trigs appear as you turn**, on the trig keys as in grid
+  recording and drawn on the screen, and **nothing is final until [ENTER]**
+  — [EXIT] puts the pattern back as it was.
+
+It is opened from the octalab menu for now. Design in progress; no date.
+
 ## Part of octabam's remixer
 
 octalab is built as a **module of [octabam](https://github.com/sambanks/octabam)'s
@@ -111,13 +129,9 @@ Options page:
 ## Roadmap
 
 - **More workflow shortcuts** in the spirit of [TRIG] + [BANK].
-- **A sequencer edit page for generation.** Generating trigs — euclidean
-  rhythms, pattern maps in the spirit of Mutable Instruments Grids, trigless
-  locks spread over a share of the steps — is played with amounts, and wants
-  to be *seen*: the trigs appearing as the encoder turns. It gets its own page,
-  laid out like the audio editor, with the data encoders, where functions can
-  be added one by one. (A first trigless-lock generator ran on the unit in the
-  popup; it moves to that page.)
+- **The topographic trig generator** (see *In development* above), then more
+  generators on the same page — euclidean rhythms, trigless locks spread over
+  a share of the steps (a first version ran on the unit from the popup).
 - **Controlled randomness** — variations around the current values rather
   than a fresh draw; ranges and density.
 - **More one-gesture functions** for the LFO and effect rows.
