@@ -216,7 +216,7 @@ on top, and every key and knob back to stock once the popup closes.
 draw `FUN_40082f40`: title, two columns of standard list descriptors, the right
 one with values) and TRACK TRIG EDIT (`FUN_4007b780`).
 
-## 9. The trig keys in grid recording, and [BANK] ✅ code, emulator · 🟡 unit (v26, 12 Sep 2026)
+## 9. The trig keys in grid recording, and [BANK] ✅ code, emulator, unit (v26 / OLB30, 12 Sep 2026)
 
 The sixteen trig keys share one handler for press, release and repeat,
 `0x40060ce0(code, down)`, which dispatches on **`0x460d1736`**: non-zero is

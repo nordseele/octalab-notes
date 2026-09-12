@@ -63,6 +63,14 @@ Some functions have options. They are in **OCTALAB**, a fifth category of the
 MAIN MENU (`[FUNCTION] + [MIXER]`), beside PROJECT, SYSTEM, CONTROL and MIDI:
 a page of checkboxes. The options go back to their defaults at every power-on.
 
+## UI workflow improvements
+
+Shortcuts that make the stock workflow shorter, without a menu.
+
+| gesture | what it does | |
+|---|---|---|
+| **[TRIG] + [BANK]** in grid recording | opens the **audio editor on the sample locked on that trig** — or, if the trig has no sample lock, on the sample the track's machine plays. In the stock OS [BANK] ignores the held trig and opens the bank selection; here it goes straight to the sample you are working on, and the trig stays as it was when you let go. [BANK] alone, or outside grid recording, works as before | ✅ |
+
 ## Functions
 
 ✅ = used on the unit and working, changes kept across a power cycle.
@@ -102,9 +110,7 @@ Options page:
 
 ## Roadmap
 
-- **[TRIG] + [BANK] opens the sample editor** (next build): in grid recording,
-  holding a trig and pressing [BANK] opens the audio editor on the sample
-  locked on that trig — or, without a lock, on the machine's own sample.
+- **More workflow shortcuts** in the spirit of [TRIG] + [BANK].
 - **A sequencer edit page for generation.** Generating trigs — euclidean
   rhythms, pattern maps in the spirit of Mutable Instruments Grids, trigless
   locks spread over a share of the steps — is played with amounts, and wants

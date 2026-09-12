@@ -167,13 +167,14 @@ the scale in normal mode; per track `TRAC + 0x50` the length and `+0x51` the
 scale; `pattern + 0x8e50` the master length (short, −1 = INF). Pattern =
 `bank + p*0x8ed8`.
 
-## [TRIG]+[BANK] in grid recording, and the held-trig bookkeeping 🟡
+## [TRIG]+[BANK] in grid recording, and the held-trig bookkeeping ✅
 
 Grid recording is `0x460d1736 != 0` (the trig keys' dispatcher `0x40060ce0`);
 [BANK] ignores held trigs; stock [TRACK]+[BANK] opens the audio editor with
 `0x4006de34(type, slot)` + `0x4006e160()`; the bookkeeping that keeps a held
-trig in place after an edit is `FUN_4004f5f8`'s. Code read and emulator; the
-hook built on it is not yet run on a unit.
+trig in place after an edit is `FUN_4004f5f8`'s. A hook built on these runs
+on a MKI (12 Sep 2026): [TRIG]+[BANK] opens the editor on the trig's sample
+lock or the machine's sample, the trig stays, [BANK] alone is unchanged.
 
 → [`INPUT.md`](INPUT.md) §9
 
