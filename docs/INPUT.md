@@ -215,3 +215,37 @@ on top, and every key and knob back to stock once the popup closes.
 113×58 popup `0x4005829c(0x71, 0x3a, …)`, its own map `0x400d113c`, its own
 draw `FUN_40082f40`: title, two columns of standard list descriptors, the right
 one with values) and TRACK TRIG EDIT (`FUN_4007b780`).
+
+## 9. The trig keys in grid recording, and [BANK] ✅ code, emulator · 🟡 unit (v26, 12 Sep 2026)
+
+The sixteen trig keys share one handler for press, release and repeat,
+`0x40060ce0(code, down)`, which dispatches on **`0x460d1736`**: non-zero is
+**grid recording** → `0x40060b58`, the only caller of the grid trig handler
+`FUN_40050f20` (it keeps the held mask `0x460d174a` and page base
+`0x460d174c`); zero → `0x400501d8`. In grid recording an empty step gets its
+trig **on the press**; a press on an existing trig marks it in
+`0x460d1a9e..0x460d1aa6` (one ushort per mask family) and the release acts
+on those marks. The stock p-lock store with trigs held (`FUN_4004f5f8`) ends
+an edit with `0x460d173a = 1`, `0x460d1750 = 1` (longs) and the five marks
+plus `0x460d10dc` cleared (words) — so the release leaves the trig alone.
+
+[BANK] (code `0x2f`, both MKI keymap tables `0x400c00a2`, `0x400c0686`):
+press `0x4007af80` (toggles `0x460e73bc`, stores the tap state `0x460e73c2`,
+opens the SELECT BANK prompt `0x40059f8c` with its map `0x400cff14`), release
+`0x4007b3e0` (acts on `0x460e73c2` / `0x460e73c6`, closes the prompt through
+`0x40056a70`, which only touches `0x460d1e5c`), repeat `0x4007af24`. Neither
+looks at held trigs: in grid recording [TRIG]+[BANK] is plain BANK. Nothing
+but the two keymap records references `0x4007af80`.
+
+Stock [TRACK]+[BANK] is a record of the map registered while a track key is
+held (`0x400d15c8`: press `0x40083ce0`, no release): it selects the track and
+opens the audio editor with `0x4006de34(type, slot)` then `0x4006e160()` —
+type = the machine type, slot = the part's slot byte for it
+(`part + 0x2ca + track*5 + type`), or the recorder buffer `track + 0x80` when
+`0x460d10cc` is set; `0x4006e160` opens only when no popup is up.
+
+**octalab (v26)** hooks the BANK press: in grid recording, on an audio track,
+with a trig key physically down (`FUN_4003171c`), it opens the editor on that
+step's sample lock (record byte 31), or on the machine's sample as
+[TRACK]+[BANK] picks it, then does `FUN_4004f5f8`'s bookkeeping and leaves
+`0x460e73c2` at 0; otherwise the two displaced instructions and `0x4007af88`.

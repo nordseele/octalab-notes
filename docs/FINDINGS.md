@@ -142,4 +142,39 @@ and encoder A, and the tables return to stock when it comes off.
 
 → [`INPUT.md`](INPUT.md)
 
+## A part lives three times, and a reboot reloads the SRAM copy ✅
+
+A part (`0x18b2` bytes) is held as the bank's working part
+(`bank + 0x8ed80 + part*0x18b2`), the saved part (`bank + 0x9504a + …`) and
+an **SRAM copy at `0x100a4ece + part*0x18b2`** — the one the unit comes back
+with after a power cycle, synced to the card or not (patterns have theirs at
+`0x1001614e`). The stock parameter writer `0x40054cd8` writes the bank and
+the copy; a direct write to the bank alone is lost at the next boot (measured
+on a MKI: randomised scenes gone, the scene selector kept). The stock setter
+`0x40029a4c(src, part)` writes both, sets the part-edited bits (`bank +
+0x95048`, `0x100b145e`) and the dirty flags, and re-applies the current part
+to the engine with `0x40009094(bank, part)` — which also copies scenes A/B
+(indexes at `part + 0x10/0x11`) into the live copy `0x80000ed4`: a scene
+written this way plays at once. Given the working part as its own source it
+commits in place. Run on a MKI (12 Sep 2026): scenes live at once and kept
+across a reboot.
+
+## Pattern length and scale 🟡 code read
+
+As the scale page `0x40047d08` reads them: `pattern + 0x8e55` is the scale
+mode (0 normal, 1 per track), `pattern + 0x8e53` the length and `+0x8e54`
+the scale in normal mode; per track `TRAC + 0x50` the length and `+0x51` the
+scale; `pattern + 0x8e50` the master length (short, −1 = INF). Pattern =
+`bank + p*0x8ed8`.
+
+## [TRIG]+[BANK] in grid recording, and the held-trig bookkeeping 🟡
+
+Grid recording is `0x460d1736 != 0` (the trig keys' dispatcher `0x40060ce0`);
+[BANK] ignores held trigs; stock [TRACK]+[BANK] opens the audio editor with
+`0x4006de34(type, slot)` + `0x4006e160()`; the bookkeeping that keeps a held
+trig in place after an edit is `FUN_4004f5f8`'s. Code read and emulator; the
+hook built on it is not yet run on a unit.
+
+→ [`INPUT.md`](INPUT.md) §9
+
 → [`TRIGS.md`](TRIGS.md)
